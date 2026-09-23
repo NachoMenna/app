@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,11 +14,24 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-      /* Estilo extra para asegurar que el PDF tome el fondo blanco correctamente */
       #reportePDF {
         background-color: #ffffff;
         padding: 20px;
+        font-size: 0.85rem;
       }
+      #reportePDF h3 {
+        font-size: 1.4rem;
+      }
+      #reportePDF h4 {
+        font-size: 1.2rem;
+      }
+      #reportePDF h5 {
+        font-size: 1.05rem;
+      }
+      #reportePDF h6 {
+        font-size: 0.95rem;
+      }
+
       .wizard-step {
         display: none;
       }
@@ -36,7 +49,7 @@
       }
     </style>
   </head>
-  <body class="bg-light">
+  <body class="bg-body">
     <!-- PANTALLA DE LOGIN -->
     <div id="secLogin" class="container py-5 d-none">
       <div class="row justify-content-center">
@@ -54,8 +67,8 @@
                 "
               >
                 <div class="mb-3">
-                  <label class="form-label">Correo Electrónico</label
-                  ><input
+                  <label class="form-label">Correo Electrónico</label>
+                  <input
                     type="email"
                     id="loginEmail"
                     class="form-control"
@@ -64,8 +77,8 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Contraseña</label
-                  ><input
+                  <label class="form-label">Contraseña</label>
+                  <input
                     type="password"
                     id="loginPass"
                     class="form-control"
@@ -87,9 +100,63 @@
     <div id="secApp" class="container py-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Sistema de Cotización de Mecanizado</h2>
-        <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
-          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-        </button>
+        <div class="d-flex gap-2">
+          <!-- BOTÓN DE MENÚ (Tipografía y Modo Oscuro) -->
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary btn-sm dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="fa-solid fa-bars"></i> Menú
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="
+                    cambiarTamanoTexto(1);
+                    return false;
+                  "
+                  ><i class="fa-solid fa-magnifying-glass-plus me-2"></i>
+                  Aumentar Texto</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="
+                    cambiarTamanoTexto(-1);
+                    return false;
+                  "
+                  ><i class="fa-solid fa-magnifying-glass-minus me-2"></i>
+                  Reducir Texto</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="
+                    toggleModoOscuro();
+                    return false;
+                  "
+                  ><i class="fa-solid fa-circle-half-stroke me-2"></i> Modo
+                  Oscuro / Claro</a
+                >
+              </li>
+            </ul>
+          </div>
+          <button
+            class="btn btn-outline-danger btn-sm"
+            onclick="cerrarSesion()"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       <!-- PASO 1: DATOS DE MÁQUINA Y CLIENTE -->
@@ -108,31 +175,28 @@
         </div>
         <div class="card-body">
           <div class="row g-3 mb-3 border-bottom pb-3">
-            <div class="col-md-4">
-              <label class="form-label">Razón Social (*)</label
-              ><input
+            <div class="col-md-6">
+              <label class="form-label">Razón Social (*)</label>
+              <input
                 type="text"
                 id="razonSocial"
                 class="form-control"
                 value="Cliente Demo"
               />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Encargado Comercial (*)</label
-              ><input
+            <div class="col-md-6">
+              <label class="form-label">Representante/s (*)</label>
+              <input
                 type="text"
-                id="encargadoComercial"
+                id="representante"
                 class="form-control"
+                placeholder="Ej. Juan Pérez, Ana Gómez"
                 value="Vendedor 1"
               />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Encargado Técnico</label
-              ><input type="text" id="encargadoTecnico" class="form-control" />
-            </div>
           </div>
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label">Seleccionar Máquina Guardada</label>
               <select
                 id="selectMaquina"
@@ -140,12 +204,12 @@
                 onchange="seleccionarMaquina()"
               >
                 <option value="">-- Seleccione una máquina --</option>
-                <!-- Opciones cargadas por JS -->
+                <option value="test">Torno / Centro CNC Genérico</option>
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label text-danger fw-bold"
-                >Costo Hora Máquina (USD)</label
+                >Costo por hora de la Máquina (USD)</label
               >
               <input
                 type="number"
@@ -153,6 +217,20 @@
                 class="form-control border-danger"
                 value="25"
                 step="0.5"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-primary fw-bold"
+                >Eficiencia de Máquina (%)</label
+              >
+              <input
+                type="number"
+                id="eficienciaMaquina"
+                class="form-control border-primary"
+                value="75"
+                step="1"
+                max="100"
+                min="1"
               />
             </div>
           </div>
@@ -178,45 +256,38 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">Nombre de la Pieza (*)</label
-              ><input type="text" id="nombrePieza" class="form-control" />
+              <label class="form-label">Nombre de la Pieza (*)</label>
+              <input type="text" id="nombrePieza" class="form-control" />
             </div>
             <div class="col-md-3">
-              <label class="form-label">Número de Pieza (*)</label
-              ><input type="text" id="numPieza" class="form-control" />
+              <label class="form-label">ID de Pieza (*)</label>
+              <input type="text" id="numPieza" class="form-control" />
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Material de Pieza (*)</label
-              ><input type="text" id="materialPieza" class="form-control" />
+            <div class="col-md-2">
+              <label class="form-label">Material (*)</label>
+              <input type="text" id="materialPieza" class="form-control" />
             </div>
-            <div class="col-md-3">
-              <label class="form-label bg-warning px-2 rounded"
-                >Cantidad Piezas (Lote)</label
-              ><input
+            <div class="col-md-2">
+              <label class="form-label bg-warning px-2 rounded text-dark"
+                >Cant. del Lote</label
+              >
+              <input
                 type="number"
                 id="piezasLote"
                 class="form-control border-warning"
                 value="100"
               />
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Adjuntar Plano (Opcional)</label
-              ><input
-                type="file"
-                id="inputPlano"
-                class="form-control"
-                accept=".png, .jpg, .jpeg, .pdf"
-                onchange="cargarImagenPlano(event)"
+            <div class="col-md-2">
+              <label class="form-label bg-warning px-2 rounded text-dark"
+                >T. Cambio Pz (Seg)</label
+              >
+              <input
+                type="number"
+                id="tiempoCambioPieza"
+                class="form-control border-warning"
+                value="0"
               />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Código G (Opcional)</label
-              ><textarea
-                id="codigoG"
-                class="form-control"
-                rows="1"
-                placeholder="G21 G90 G00 X0 Y0..."
-              ></textarea>
             </div>
           </div>
           <div class="d-flex justify-content-between mt-4">
@@ -239,26 +310,30 @@
         </div>
       </div>
 
-      <!-- PASO 3: OPERACIONES (SECUENCIAL INTERNO) -->
+      <!-- PASO 3: OPERACIONES -->
       <div id="cardOperaciones" class="card mb-4 shadow-sm wizard-step">
         <div class="card-header bg-secondary text-white fw-bold">
           Paso 3: Agregar Operaciones
         </div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label fw-bold">Tipo de Operación</label>
+            <label class="form-label fw-bold"
+              >Tipo de Operación Principal</label
+            >
             <select
               id="tipoOperacion"
-              class="form-select"
+              class="form-select border-dark"
               onchange="renderFormOperacion()"
             >
               <option value="torneado">Torneado</option>
-              <option value="fresado">Fresado</option>
+              <option value="fresado_mdi">Fresado (Fresa MDI)</option>
+              <option value="fresado_inserto">
+                Fresado (Fresa con Inserto)
+              </option>
               <option value="perforado">Perforado</option>
+              <option value="roscado">Roscado</option>
             </select>
           </div>
-
-          <!-- Contenedor dinámico de los sub-pasos de la operación -->
           <form id="formOperacion" class="mb-3"></form>
 
           <div class="d-flex justify-content-between mt-4 border-top pt-3">
@@ -304,7 +379,7 @@
             class="card shadow-none border border-success"
           >
             <div
-              class="card-header bg-light d-flex justify-content-between align-items-center"
+              class="card-header bg-light d-flex justify-content-between align-items-center text-dark"
             >
               <strong>Opciones de Reporte</strong>
               <div>
@@ -317,7 +392,7 @@
                     checked
                   />
                   <label class="form-check-label" for="chkIncluirPlano"
-                    >Incluir Plano</label
+                    >Incluir Planos</label
                   >
                 </div>
                 <div class="form-check form-check-inline">
@@ -326,9 +401,10 @@
                     type="checkbox"
                     id="chkIncluirCodigoG"
                     onchange="renderVistaReporte()"
+                    checked
                   />
                   <label class="form-check-label" for="chkIncluirCodigoG"
-                    >Incluir Código G</label
+                    >Incluir Códigos G</label
                   >
                 </div>
               </div>
@@ -336,52 +412,127 @@
 
             <!-- CONTENIDO QUE SE EXPORTA A PDF -->
             <div class="card-body" id="reportePDF">
-              <div class="text-center mb-4">
-                <h3 class="text-uppercase border-bottom pb-2">
+              <div
+                class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2"
+              >
+                <img
+                  src="logoSolvex.jpg"
+                  alt="Logo Solvex"
+                  style="max-height: 60px"
+                />
+                <h3 class="text-uppercase mb-0" style="color: #333">
                   Reporte de Mecanizado
                 </h3>
               </div>
-              <div id="resumenCliente" class="mb-4"></div>
+
+              <!-- AQUÍ SE INYECTA EL RESUMEN DEL CLIENTE + LA MÁQUINA -->
+              <div id="resumenCliente" class="mb-4 text-dark"></div>
 
               <table class="table table-bordered table-striped mb-4">
                 <thead class="table-dark text-center">
                   <tr>
                     <th>Operación</th>
                     <th>Herramienta</th>
-                    <th>T. Pieza (Seg)</th>
-                    <th>T. Lote (Hs)</th>
-                    <th>Costo Hta/Pieza</th>
+                    <th>Tiempo por pieza</th>
+                    <th>Tiempo del lote</th>
+                    <th>Costo de herramienta por pieza</th>
                   </tr>
                 </thead>
-                <tbody id="tablaResultados" class="text-center"></tbody>
+                <tbody
+                  id="tablaResultados"
+                  class="text-center text-dark"
+                ></tbody>
               </table>
+
+              <!-- SECCIÓN: Detalles de las Operaciones en PDF -->
+              <div id="reporteDetalleOperaciones" class="mb-4 text-dark"></div>
+
+              <!-- AQUÍ VAN LOS VALORES EDITABLES DE MÁQUINA Y EFICIENCIA -->
+              <div
+                id="aclaracionHoraMaquina"
+                class="text-end text-primary mb-2 fw-bold d-none"
+              ></div>
 
               <div
                 class="alert alert-success border-success text-dark"
                 id="resumenEconomico"
               ></div>
 
-              <div id="reporteSeccionPlano" class="mt-4 d-none text-center">
-                <h5 class="border-bottom pb-2">Plano de la Pieza</h5>
-                <img
-                  id="imgPlanoPreview"
-                  src=""
-                  class="img-fluid border mt-2"
-                  style="max-height: 400px; object-fit: contain"
-                />
+              <!-- SECCIÓN DE FÓRMULAS EMPLEADAS COMO COMENTARIO SECUNDARIO -->
+              <div
+                id="seccionFormulas"
+                class="mt-5 p-3 rounded text-dark"
+                style="
+                  background-color: #f8f9fa;
+                  border: 1px solid #ddd;
+                  font-size: 0.8em;
+                  page-break-inside: avoid;
+                "
+              >
+                <h6 class="fw-bold mb-2">Fórmulas empleadas en el sistema:</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <ul class="mb-0 ps-3">
+                      <li>
+                        <strong>RPM:</strong> (Vc * 1000) / (π * Diámetro)
+                      </li>
+                      <li>
+                        <strong>Avance Total (mm/min):</strong> RPM * Avance (y
+                        multiplicador 'Z' en fresado)
+                      </li>
+                      <li>
+                        <strong>Tiempo Neto (Seg):</strong> ((Largo * Pasadas) /
+                        Avance Total) * 60
+                      </li>
+                      <li>
+                        <strong>Tiempo Real Pieza (Seg):</strong> Tiempo Neto /
+                        (Eficiencia / 100)
+                      </li>
+                      <li>
+                        <strong>Tiempo Mecanizado Lote (Hs):</strong> (Tiempo
+                        Real Pieza * Lote) / 3600
+                      </li>
+                      <li>
+                        <strong>Tiempo Total Lote (Hs):</strong> Tiempo
+                        Mecanizado Lote + (T. Cambio Pieza * Lote / 3600)
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="mb-0 ps-3">
+                      <li>
+                        <strong>Vida Útil:</strong> Lote / Promedio Rendimiento
+                      </li>
+                      <li>
+                        <strong>Costo Hta (Torneado):</strong> (Precio Inserto /
+                        Filos) * Vida Útil
+                      </li>
+                      <li>
+                        <strong>Costo Hta (Fresa MDI):</strong> Precio Fresa *
+                        Vida Útil
+                      </li>
+                      <li>
+                        <strong>Costo Hta (Fresa Inserto):</strong> (Precio Ins.
+                        / Filos) * Z * Vida Útil
+                      </li>
+                      <li>
+                        <strong>Costo de Máquina Lote:</strong> Costo Hora
+                        Máquina * Tiempo Total Lote
+                      </li>
+                      <li>
+                        <strong>Costo Total del Lote:</strong> Costo Hta Lote +
+                        Costo Máquina Lote
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <div id="reporteSeccionCodigoG" class="mt-4 d-none">
-                <h5 class="border-bottom pb-2">Código G Programado</h5>
-                <pre
-                  id="preCodigoG"
-                  class="bg-dark text-light p-3 rounded text-start"
-                ></pre>
-              </div>
-
-              <div class="mt-5 text-muted small text-center">
-                * Tiempos y cálculos configurados según parámetros estándar.
-                Costos expresados en USD (sin IVA).
+              <!-- COMENTARIOS Y ACLARACIONES FINALES -->
+              <div class="mt-3 text-muted text-start" style="font-size: 0.75em">
+                <p class="mb-0">
+                  * Los valores son expresados en USD (sin IVA).
+                </p>
               </div>
             </div>
 
@@ -459,7 +610,7 @@
                 />
               </div>
               <button type="submit" class="btn btn-primary w-100">
-                Guardar Máquina
+                Guardar Máquina (Local)
               </button>
             </form>
           </div>
@@ -468,6 +619,936 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="app.js"></script>
+    <script>
+      let operaciones = [];
+      let tempPlanoUrl = "";
+
+      let rootFontSize = 16;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("secLogin").classList.add("d-none");
+        document.getElementById("secApp").classList.remove("d-none");
+      });
+
+      function cambiarTamanoTexto(cambio) {
+        rootFontSize += cambio * 1;
+        if (rootFontSize < 10) rootFontSize = 10;
+        if (rootFontSize > 24) rootFontSize = 24;
+        document.documentElement.style.fontSize = rootFontSize + "px";
+      }
+
+      function toggleModoOscuro() {
+        const html = document.documentElement;
+        if (html.getAttribute("data-bs-theme") === "dark") {
+          html.setAttribute("data-bs-theme", "light");
+        } else {
+          html.setAttribute("data-bs-theme", "dark");
+        }
+      }
+
+      function avanzarPaso(actualId, siguienteId) {
+        document.getElementById(actualId).classList.remove("active");
+        document.getElementById(siguienteId).classList.add("active");
+      }
+
+      function avanzarSubPaso(actualClase, siguienteClase) {
+        document.querySelector("." + actualClase).classList.add("d-none");
+        document.querySelector("." + siguienteClase).classList.remove("d-none");
+      }
+
+      function cargarImagenPlanoOp(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            tempPlanoUrl = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          tempPlanoUrl = "";
+        }
+      }
+
+      function calcPromedioRendimiento() {
+        const f1 = parseFloat(document.getElementById("opF1").value) || 0;
+        const f2 = parseFloat(document.getElementById("opF2").value) || 0;
+        const f3 = parseFloat(document.getElementById("opF3").value) || 0;
+        let sum = 0,
+          count = 0;
+        if (f1 > 0) {
+          sum += f1;
+          count++;
+        }
+        if (f2 > 0) {
+          sum += f2;
+          count++;
+        }
+        if (f3 > 0) {
+          sum += f3;
+          count++;
+        }
+        const avg = count > 0 ? sum / count : 0;
+        document.getElementById("opPromedio").value = avg.toFixed(2);
+      }
+
+      function formatearTiempo(segundosTotales) {
+        if (isNaN(segundosTotales) || segundosTotales === 0) return "00s";
+        const h = Math.floor(segundosTotales / 3600);
+        const m = Math.floor((segundosTotales % 3600) / 60);
+        const s = Math.round(segundosTotales % 60);
+
+        let partes = [];
+        if (h > 0) partes.push(`${h}h`);
+        if (m > 0 || h > 0) partes.push(`${m.toString().padStart(2, "0")}m`);
+        partes.push(`${s.toString().padStart(2, "0")}s`);
+
+        return partes.join(" ");
+      }
+
+      function renderFormOperacion() {
+        const tipo = document.getElementById("tipoOperacion").value;
+        const container = document.getElementById("formOperacion");
+        let html = "";
+        tempPlanoUrl = "";
+
+        let subtiposHTML = "";
+        if (tipo === "torneado") {
+          subtiposHTML = `<option value="Cilindrado">Cilindrado</option><option value="Frenteado">Frenteado</option><option value="Ranurado">Ranurado</option><option value="Tronzado">Tronzado</option><option value="Mandrinado">Mandrinado</option><option value="Perfilado">Perfilado</option><option value="Otro">Otro</option>`;
+        } else if (tipo === "fresado_mdi" || tipo === "fresado_inserto") {
+          subtiposHTML = `<option value="Planeado">Planeado</option><option value="Escuadrado">Escuadrado</option><option value="Cajeado">Cajeado</option><option value="Contorneado">Contorneado</option><option value="Ranurado">Ranurado</option><option value="Otro">Otro</option>`;
+        } else if (tipo === "perforado") {
+          subtiposHTML = `<option value="Taladrado">Taladrado con Broca</option><option value="Mecha centro / Punteado">Mecha centro / Punteado</option><option value="Escariado">Escariado</option><option value="Otro">Otro</option>`;
+        } else if (tipo === "roscado") {
+          subtiposHTML = `<option value="Con inserto">Con inserto</option><option value="Con macho">Con macho</option><option value="Con fresa">Con fresa</option><option value="Con terraja">Con terraja</option><option value="Otro">Otro</option>`;
+        }
+
+        if (tipo === "torneado") {
+          html = `
+            <div class="subpaso-1 active">
+              <h5 class="text-primary border-bottom pb-2">1. Información de Herramienta</h5>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label text-primary fw-bold">Especificación de la Operación</label>
+                  <select id="opSubtipo" class="form-select border-primary bg-light fw-bold">${subtiposHTML}</select>
+                </div>
+                <div class="col-md-4"><label class="form-label">Portaherramienta</label><input type="text" id="opPorta" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Inserto</label><input type="text" id="opInserto" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Cantidad de Filos</label><input type="number" id="opFilos" class="form-control" value="2"></div>
+              </div>
+              <div class="text-end mt-3"><button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-1', 'subpaso-2')">Siguiente (Condiciones) <i class="fa-solid fa-arrow-right"></i></button></div>
+            </div>
+            <div class="subpaso-2 d-none">
+              <h5 class="text-primary border-bottom pb-2">2. Condiciones de Corte</h5>
+              <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Diámetro Operación (mm)</label><input type="number" id="opDiametro" class="form-control" value="50"></div>
+                <div class="col-md-4"><label class="form-label">Velocidad Corte Vc (m/min)</label><input type="number" id="opVc" class="form-control" value="150"></div>
+                <div class="col-md-4"><label class="form-label">Avance (mm/rev)</label><input type="number" id="opAvance" class="form-control" step="0.01" value="0.2"></div>
+                <div class="col-md-4"><label class="form-label">Largo del torneado (mm)</label><input type="number" id="opLargo" class="form-control" value="100"></div>
+                <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
+                <div class="col-md-4"><label class="form-label">Prof. de Corte Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-3')">Siguiente (Económicos) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-3 d-none">
+              <h5 class="text-primary border-bottom pb-2">3. Datos Económicos</h5>
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Precio Inserto Unitario (USD)</label><input type="number" id="opPrecioInserto" class="form-control" value="10"></div>
+                <div class="col-md-6"><label class="form-label">Precio Portaherramienta Unitario (USD)</label><input type="number" id="opPrecioPorta" class="form-control" value="80"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-2')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-4')">Siguiente (Rendimiento) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-4 d-none">
+              <h5 class="text-primary border-bottom pb-2">4. Rendimiento y Complementos</h5>
+              <div class="row g-3">
+                <div class="col-md-3"><label class="form-label">Piezas Filo 1</label><input type="number" id="opF1" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Filo 2</label><input type="number" id="opF2" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Filo 3</label><input type="number" id="opF3" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label bg-light">Promedio (Auto)</label><input type="number" id="opPromedio" class="form-control fw-bold border-primary text-primary" readonly></div>
+                <div class="col-md-12"><label class="form-label">Observaciones</label><input type="text" id="opObs" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Adjuntar Plano (Opcional)</label><input type="file" id="opPlano" class="form-control" accept=".png, .jpg, .jpeg, .pdf" onchange="cargarImagenPlanoOp(event)"></div>
+                <div class="col-md-6"><label class="form-label">Código G de Operación</label><textarea id="opCodigoG" class="form-control" rows="2" placeholder="Ej. G21 G90..."></textarea></div>
+              </div>
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-4', 'subpaso-3')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="agregarOperacion()">+ Guardar Operación</button>
+              </div>
+            </div>
+          `;
+        } else if (tipo === "fresado_mdi") {
+          html = `
+            <div class="subpaso-1 active">
+              <h5 class="text-primary border-bottom pb-2">1. Información de Herramienta (Fresa MDI)</h5>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label text-primary fw-bold">Especificación de la Operación</label>
+                  <select id="opSubtipo" class="form-select border-primary bg-light fw-bold">${subtiposHTML}</select>
+                </div>
+                <div class="col-md-4"><label class="form-label">Herramienta (Fresa)</label><input type="text" id="opHta" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Diámetro (mm)</label><input type="number" id="opDiametro" class="form-control" value="10"></div>
+                <div class="col-md-4"><label class="form-label">Cant. de Cortes (Z)</label><input type="number" id="opZ" class="form-control" value="4"></div>
+              </div>
+              <div class="text-end mt-3"><button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-1', 'subpaso-2')">Siguiente (Condiciones) <i class="fa-solid fa-arrow-right"></i></button></div>
+            </div>
+            <div class="subpaso-2 d-none">
+              <h5 class="text-primary border-bottom pb-2">2. Condiciones de Corte</h5>
+              <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Velocidad Corte Vc (m/min)</label><input type="number" id="opVc" class="form-control" value="100"></div>
+                <div class="col-md-4"><label class="form-label">Avance Fz (mm/diente)</label><input type="number" id="opAvance" class="form-control" step="0.001" value="0.05"></div>
+                <div class="col-md-4"><label class="form-label">Largo del fresado (mm)</label><input type="number" id="opLargo" class="form-control" value="100"></div>
+                <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
+                <div class="col-md-4"><label class="form-label">Profundidad Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
+                <div class="col-md-4"><label class="form-label">Corte Radial Ae (mm)</label><input type="number" id="opAe" class="form-control" step="0.1"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-3')">Siguiente (Económicos) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-3 d-none">
+              <h5 class="text-primary border-bottom pb-2">3. Datos Económicos</h5>
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Costo de la Fresa MDI (USD)</label><input type="number" id="opPrecioHta" class="form-control" value="45"></div>
+                <div class="col-md-6"><label class="form-label">Precio del Portaherramientas (USD)</label><input type="number" id="opPrecioPorta" class="form-control" value="120"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-2')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-4')">Siguiente (Rendimiento) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-4 d-none">
+              <h5 class="text-primary border-bottom pb-2">4. Rendimiento y Complementos</h5>
+              <div class="row g-3">
+                <div class="col-md-12"><p class="text-muted small mb-0">Rendimiento en Piezas de la Fresa Enteriza</p></div>
+                <div class="col-md-3"><label class="form-label">Piezas Vida 1</label><input type="number" id="opF1" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Vida 2</label><input type="number" id="opF2" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Vida 3</label><input type="number" id="opF3" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label bg-light">Promedio (Auto)</label><input type="number" id="opPromedio" class="form-control fw-bold border-primary text-primary" readonly></div>
+                <div class="col-md-12"><label class="form-label">Observaciones</label><input type="text" id="opObs" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Adjuntar Plano (Opcional)</label><input type="file" id="opPlano" class="form-control" accept=".png, .jpg, .jpeg, .pdf" onchange="cargarImagenPlanoOp(event)"></div>
+                <div class="col-md-6"><label class="form-label">Código G de Operación</label><textarea id="opCodigoG" class="form-control" rows="2" placeholder="Ej. G21 G90..."></textarea></div>
+              </div>
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-4', 'subpaso-3')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="agregarOperacion()">+ Guardar Operación</button>
+              </div>
+            </div>
+          `;
+        } else if (tipo === "fresado_inserto") {
+          html = `
+            <div class="subpaso-1 active">
+              <h5 class="text-primary border-bottom pb-2">1. Información de Herramienta (Fresa con Insertos)</h5>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label text-primary fw-bold">Especificación de la Operación</label>
+                  <select id="opSubtipo" class="form-select border-primary bg-light fw-bold">${subtiposHTML}</select>
+                </div>
+                <div class="col-md-6"><label class="form-label">Cuerpo de Fresa / Porta</label><input type="text" id="opPorta" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Inserto de Fresado</label><input type="text" id="opInserto" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Filos por Inserto</label><input type="number" id="opFilos" class="form-control" value="4"></div>
+                <div class="col-md-4"><label class="form-label">Cant. Insertos en Fresa (Z)</label><input type="number" id="opZ" class="form-control" value="5"></div>
+                <div class="col-md-4"><label class="form-label">Diámetro (mm)</label><input type="number" id="opDiametro" class="form-control" value="63"></div>
+              </div>
+              <div class="text-end mt-3"><button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-1', 'subpaso-2')">Siguiente (Condiciones) <i class="fa-solid fa-arrow-right"></i></button></div>
+            </div>
+            <div class="subpaso-2 d-none">
+              <h5 class="text-primary border-bottom pb-2">2. Condiciones de Corte</h5>
+              <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Velocidad Corte Vc (m/min)</label><input type="number" id="opVc" class="form-control" value="180"></div>
+                <div class="col-md-4"><label class="form-label">Avance Fz (mm/diente)</label><input type="number" id="opAvance" class="form-control" step="0.01" value="0.1"></div>
+                <div class="col-md-4"><label class="form-label">Largo del fresado (mm)</label><input type="number" id="opLargo" class="form-control" value="200"></div>
+                <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
+                <div class="col-md-4"><label class="form-label">Profundidad Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
+                <div class="col-md-4"><label class="form-label">Corte Radial Ae (mm)</label><input type="number" id="opAe" class="form-control" step="0.1"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-3')">Siguiente (Económicos) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-3 d-none">
+              <h5 class="text-primary border-bottom pb-2">3. Datos Económicos</h5>
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Precio de 1 Inserto (USD)</label><input type="number" id="opPrecioInserto" class="form-control" value="12"></div>
+                <div class="col-md-6"><label class="form-label">Precio Cuerpo de Fresa (USD)</label><input type="number" id="opPrecioPorta" class="form-control" value="250"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-2')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-outline-primary" onclick="avanzarSubPaso('subpaso-3', 'subpaso-4')">Siguiente (Rendimiento) <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="subpaso-4 d-none">
+              <h5 class="text-primary border-bottom pb-2">4. Rendimiento y Complementos</h5>
+              <div class="row g-3">
+                <div class="col-md-12"><p class="text-muted small mb-0">Rendimiento en Piezas del juego de filos armado</p></div>
+                <div class="col-md-3"><label class="form-label">Piezas Filo 1</label><input type="number" id="opF1" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Filo 2</label><input type="number" id="opF2" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label">Piezas Filo 3</label><input type="number" id="opF3" class="form-control" oninput="calcPromedioRendimiento()"></div>
+                <div class="col-md-3"><label class="form-label bg-light">Promedio (Auto)</label><input type="number" id="opPromedio" class="form-control fw-bold border-primary text-primary" readonly></div>
+                <div class="col-md-12"><label class="form-label">Observaciones</label><input type="text" id="opObs" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Adjuntar Plano (Opcional)</label><input type="file" id="opPlano" class="form-control" accept=".png, .jpg, .jpeg, .pdf" onchange="cargarImagenPlanoOp(event)"></div>
+                <div class="col-md-6"><label class="form-label">Código G de Operación</label><textarea id="opCodigoG" class="form-control" rows="2" placeholder="Ej. G21 G90..."></textarea></div>
+              </div>
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-4', 'subpaso-3')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="agregarOperacion()">+ Guardar Operación</button>
+              </div>
+            </div>
+          `;
+        } else {
+          html = `
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label text-primary fw-bold">Especificación de la Operación</label>
+                <select id="opSubtipo" class="form-select border-primary bg-light fw-bold">${subtiposHTML}</select>
+              </div>
+              <div class="col-md-4"><label class="form-label">Herramienta</label><input type="text" id="opHta" class="form-control" required></div>
+              <div class="col-md-4"><label class="form-label">Vc (m/min)</label><input type="number" id="opVc" class="form-control" value="150"></div>
+              <div class="col-md-4"><label class="form-label">Avance (mm/rev o diente)</label><input type="number" id="opAvance" class="form-control" step="0.01" value="0.2"></div>
+              <div class="col-md-4"><label class="form-label">Largo (mm)</label><input type="number" id="opLargo" class="form-control" value="50"></div>
+              <div class="col-md-4"><label class="form-label">Diámetro (mm)</label><input type="number" id="opDiametro" class="form-control" value="10"></div>
+              <div class="col-md-4"><label class="form-label">Costo Hta (USD)</label><input type="number" id="opPrecioHta" class="form-control" value="15"></div>
+              
+              <div class="col-md-6"><label class="form-label">Adjuntar Plano (Opcional)</label><input type="file" id="opPlano" class="form-control" accept=".png, .jpg, .jpeg, .pdf" onchange="cargarImagenPlanoOp(event)"></div>
+              <div class="col-md-6"><label class="form-label">Código G de Operación</label><textarea id="opCodigoG" class="form-control" rows="2" placeholder="Ej. G21 G90..."></textarea></div>
+            </div>
+            <div class="text-end mt-4"><button type="button" class="btn btn-success fw-bold px-4" onclick="agregarOperacion()">+ Guardar Operación</button></div>
+          `;
+        }
+        container.innerHTML = html;
+      }
+
+      function agregarOperacion() {
+        const tipo = document.getElementById("tipoOperacion").value;
+        const subtipo = document.getElementById("opSubtipo").value;
+        const lote =
+          parseFloat(document.getElementById("piezasLote").value) || 1;
+        const costoHoraMaq =
+          parseFloat(document.getElementById("costoHora").value) || 0;
+        const eficiencia =
+          parseFloat(document.getElementById("eficienciaMaquina").value) || 100;
+        const factorEficiencia = eficiencia / 100;
+
+        let op = { tipo, subtipo, lote, raw: {} };
+
+        if (tipo === "torneado") {
+          op.raw = {
+            subtipo: subtipo,
+            porta: document.getElementById("opPorta").value,
+            inserto: document.getElementById("opInserto").value,
+            filos: document.getElementById("opFilos").value,
+            diametro: document.getElementById("opDiametro").value,
+            vc: document.getElementById("opVc").value,
+            avance: document.getElementById("opAvance").value,
+            largo: document.getElementById("opLargo").value,
+            pasadas: document.getElementById("opPasadas").value,
+            ap: document.getElementById("opAp").value,
+            precioInserto: document.getElementById("opPrecioInserto").value,
+            precioPorta: document.getElementById("opPrecioPorta").value,
+            f1: document.getElementById("opF1").value,
+            f2: document.getElementById("opF2").value,
+            f3: document.getElementById("opF3").value,
+            promedio: document.getElementById("opPromedio").value,
+            obs: document.getElementById("opObs").value,
+            codigoG: document.getElementById("opCodigoG").value,
+            plano: tempPlanoUrl,
+          };
+
+          const diametro = parseFloat(op.raw.diametro) || 1;
+          const vc = parseFloat(op.raw.vc) || 0;
+          const avance = parseFloat(op.raw.avance) || 0;
+          const largo = parseFloat(op.raw.largo) || 0;
+          const pasadas = parseFloat(op.raw.pasadas) || 1;
+          const precioInserto = parseFloat(op.raw.precioInserto) || 0;
+          const filos = parseFloat(op.raw.filos) || 1;
+          const promedioRendimiento = parseFloat(op.raw.promedio) || 1;
+
+          const rpm = (vc * 1000) / 3.14 / diametro;
+          const avanceTotal = rpm * avance;
+          const tiempoNetoSeg =
+            avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
+
+          const filosConsumidosLote = lote / promedioRendimiento;
+          const costoHtaLote = (precioInserto / filos) * filosConsumidosLote;
+          const costoHtaPieza = costoHtaLote / lote;
+          const costoMaqLote = costoHoraMaq * tiempoLoteHs;
+
+          op = {
+            ...op,
+            herramienta: op.raw.inserto || "Inserto N/D",
+            rpm: Math.round(rpm),
+            avanceTotal: avanceTotal.toFixed(2),
+            tiempoNetoSeg: tiempoNetoSeg,
+            tiempoPiezaSeg: tiempoPiezaSeg,
+            tiempoLoteHs: tiempoLoteHs,
+            costoHtaLote: costoHtaLote,
+            costoHtaPieza: costoHtaPieza,
+            costoMaqLote: costoMaqLote,
+          };
+        } else if (tipo === "fresado_mdi") {
+          op.raw = {
+            subtipo: subtipo,
+            hta: document.getElementById("opHta").value,
+            diametro: document.getElementById("opDiametro").value,
+            z: document.getElementById("opZ").value,
+            vc: document.getElementById("opVc").value,
+            avance: document.getElementById("opAvance").value,
+            largo: document.getElementById("opLargo").value,
+            pasadas: document.getElementById("opPasadas").value,
+            ap: document.getElementById("opAp").value,
+            ae: document.getElementById("opAe").value,
+            precioHta: document.getElementById("opPrecioHta").value,
+            precioPorta: document.getElementById("opPrecioPorta").value,
+            f1: document.getElementById("opF1").value,
+            f2: document.getElementById("opF2").value,
+            f3: document.getElementById("opF3").value,
+            promedio: document.getElementById("opPromedio").value,
+            obs: document.getElementById("opObs").value,
+            codigoG: document.getElementById("opCodigoG").value,
+            plano: tempPlanoUrl,
+          };
+
+          const diametro = parseFloat(op.raw.diametro) || 1;
+          const vc = parseFloat(op.raw.vc) || 0;
+          const z = parseFloat(op.raw.z) || 1;
+          const avanceFz = parseFloat(op.raw.avance) || 0;
+          const largo = parseFloat(op.raw.largo) || 0;
+          const pasadas = parseFloat(op.raw.pasadas) || 1;
+          const precioHta = parseFloat(op.raw.precioHta) || 0;
+          const promedioRendimiento = parseFloat(op.raw.promedio) || 1;
+
+          const rpm = (vc * 1000) / 3.14 / diametro;
+          const avanceTotal = rpm * avanceFz * z;
+          const tiempoNetoSeg =
+            avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
+
+          const consumoFresaLote = lote / promedioRendimiento;
+          const costoHtaLote = precioHta * consumoFresaLote;
+          const costoHtaPieza = costoHtaLote / lote;
+          const costoMaqLote = costoHoraMaq * tiempoLoteHs;
+
+          op = {
+            ...op,
+            herramienta: op.raw.hta || "Fresa MDI",
+            rpm: Math.round(rpm),
+            avanceTotal: avanceTotal.toFixed(2),
+            tiempoNetoSeg: tiempoNetoSeg,
+            tiempoPiezaSeg: tiempoPiezaSeg,
+            tiempoLoteHs: tiempoLoteHs,
+            costoHtaLote: costoHtaLote,
+            costoHtaPieza: costoHtaPieza,
+            costoMaqLote: costoMaqLote,
+          };
+        } else if (tipo === "fresado_inserto") {
+          op.raw = {
+            subtipo: subtipo,
+            porta: document.getElementById("opPorta").value,
+            inserto: document.getElementById("opInserto").value,
+            filos: document.getElementById("opFilos").value,
+            z: document.getElementById("opZ").value,
+            diametro: document.getElementById("opDiametro").value,
+            vc: document.getElementById("opVc").value,
+            avance: document.getElementById("opAvance").value,
+            largo: document.getElementById("opLargo").value,
+            pasadas: document.getElementById("opPasadas").value,
+            ap: document.getElementById("opAp").value,
+            ae: document.getElementById("opAe").value,
+            precioInserto: document.getElementById("opPrecioInserto").value,
+            precioPorta: document.getElementById("opPrecioPorta").value,
+            f1: document.getElementById("opF1").value,
+            f2: document.getElementById("opF2").value,
+            f3: document.getElementById("opF3").value,
+            promedio: document.getElementById("opPromedio").value,
+            obs: document.getElementById("opObs").value,
+            codigoG: document.getElementById("opCodigoG").value,
+            plano: tempPlanoUrl,
+          };
+
+          const diametro = parseFloat(op.raw.diametro) || 1;
+          const vc = parseFloat(op.raw.vc) || 0;
+          const z = parseFloat(op.raw.z) || 1;
+          const avanceFz = parseFloat(op.raw.avance) || 0;
+          const largo = parseFloat(op.raw.largo) || 0;
+          const pasadas = parseFloat(op.raw.pasadas) || 1;
+          const precioInserto = parseFloat(op.raw.precioInserto) || 0;
+          const filos = parseFloat(op.raw.filos) || 1;
+          const promedioRendimiento = parseFloat(op.raw.promedio) || 1;
+
+          const rpm = (vc * 1000) / 3.14 / diametro;
+          const avanceTotal = rpm * avanceFz * z;
+          const tiempoNetoSeg =
+            avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
+
+          const consumoJuegosLote = lote / promedioRendimiento;
+          const costoHtaLote = (precioInserto / filos) * z * consumoJuegosLote;
+          const costoHtaPieza = costoHtaLote / lote;
+          const costoMaqLote = costoHoraMaq * tiempoLoteHs;
+
+          op = {
+            ...op,
+            herramienta: op.raw.inserto || "Inserto Fresa",
+            rpm: Math.round(rpm),
+            avanceTotal: avanceTotal.toFixed(2),
+            tiempoNetoSeg: tiempoNetoSeg,
+            tiempoPiezaSeg: tiempoPiezaSeg,
+            tiempoLoteHs: tiempoLoteHs,
+            costoHtaLote: costoHtaLote,
+            costoHtaPieza: costoHtaPieza,
+            costoMaqLote: costoMaqLote,
+          };
+        } else {
+          op.raw = {
+            subtipo: subtipo,
+            herramienta: document.getElementById("opHta").value,
+            vc: document.getElementById("opVc").value,
+            avance: document.getElementById("opAvance").value,
+            largo: document.getElementById("opLargo").value,
+            diametro: document.getElementById("opDiametro").value,
+            precioHta: document.getElementById("opPrecioHta").value,
+            codigoG: document.getElementById("opCodigoG").value,
+            plano: tempPlanoUrl,
+          };
+
+          const vc = parseFloat(op.raw.vc) || 0;
+          const diametro = parseFloat(op.raw.diametro) || 1;
+          const rpm = (vc * 1000) / 3.14 / diametro;
+          const avance = parseFloat(op.raw.avance) || 0.1;
+          const avanceTotal = rpm * avance;
+          const largo = parseFloat(op.raw.largo) || 10;
+          const tiempoNetoSeg =
+            avanceTotal > 0 ? (largo / avanceTotal) * 60 : 0;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
+          const costoHtaPieza = parseFloat(op.raw.precioHta) / 100 || 0;
+
+          op = {
+            ...op,
+            herramienta: op.raw.herramienta || "N/D",
+            rpm: Math.round(rpm),
+            avanceTotal: avanceTotal.toFixed(2),
+            tiempoNetoSeg: tiempoNetoSeg,
+            tiempoPiezaSeg: tiempoPiezaSeg,
+            tiempoLoteHs: tiempoLoteHs,
+            costoHtaPieza: costoHtaPieza,
+            costoHtaLote: costoHtaPieza * lote,
+            costoMaqLote: costoHoraMaq * tiempoLoteHs,
+          };
+        }
+
+        operaciones.push(op);
+        tempPlanoUrl = "";
+        actualizarLista();
+        renderFormOperacion();
+        document.getElementById("btnFinalizarOp").classList.remove("d-none");
+      }
+
+      function actualizarLista() {
+        const ul = document.getElementById("listaOperaciones");
+        ul.innerHTML = operaciones
+          .map((o, index) => {
+            const etiquetaTipo =
+              o.tipo === "fresado_mdi"
+                ? "FRESADO (MDI)"
+                : o.tipo === "fresado_inserto"
+                  ? "FRESADO (INSERTO)"
+                  : o.tipo.toUpperCase();
+            return `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>${index + 1}. ${etiquetaTipo} (${o.subtipo})</strong> - ${o.herramienta} 
+                <br><small class="text-muted">Tiempo real por pieza: ${formatearTiempo(o.tiempoPiezaSeg)} | Costo hta/pieza: USD ${o.costoHtaPieza.toFixed(3)}</small>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-warning me-2" onclick="editarOperacion(${index})" title="Editar Info"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminarOperacion(${index})"><i class="fa-solid fa-trash"></i></button>
+              </div>
+          </li>`;
+          })
+          .join("");
+      }
+
+      function editarOperacion(index) {
+        const op = operaciones[index];
+        document.getElementById("tipoOperacion").value = op.tipo;
+        renderFormOperacion();
+
+        document.getElementById("opSubtipo").value = op.raw.subtipo || "";
+
+        if (op.tipo === "torneado") {
+          document.getElementById("opPorta").value = op.raw.porta;
+          document.getElementById("opInserto").value = op.raw.inserto;
+          document.getElementById("opFilos").value = op.raw.filos;
+          document.getElementById("opDiametro").value = op.raw.diametro;
+          document.getElementById("opVc").value = op.raw.vc;
+          document.getElementById("opAvance").value = op.raw.avance;
+          document.getElementById("opLargo").value = op.raw.largo;
+          document.getElementById("opPasadas").value = op.raw.pasadas;
+          document.getElementById("opAp").value = op.raw.ap;
+          document.getElementById("opPrecioInserto").value =
+            op.raw.precioInserto;
+          document.getElementById("opPrecioPorta").value = op.raw.precioPorta;
+          document.getElementById("opF1").value = op.raw.f1;
+          document.getElementById("opF2").value = op.raw.f2;
+          document.getElementById("opF3").value = op.raw.f3;
+          document.getElementById("opPromedio").value = op.raw.promedio;
+          document.getElementById("opObs").value = op.raw.obs;
+        } else if (op.tipo === "fresado_mdi") {
+          document.getElementById("opHta").value = op.raw.hta;
+          document.getElementById("opDiametro").value = op.raw.diametro;
+          document.getElementById("opZ").value = op.raw.z;
+          document.getElementById("opVc").value = op.raw.vc;
+          document.getElementById("opAvance").value = op.raw.avance;
+          document.getElementById("opLargo").value = op.raw.largo;
+          document.getElementById("opPasadas").value = op.raw.pasadas;
+          document.getElementById("opAp").value = op.raw.ap;
+          document.getElementById("opAe").value = op.raw.ae;
+          document.getElementById("opPrecioHta").value = op.raw.precioHta;
+          document.getElementById("opPrecioPorta").value = op.raw.precioPorta;
+          document.getElementById("opF1").value = op.raw.f1;
+          document.getElementById("opF2").value = op.raw.f2;
+          document.getElementById("opF3").value = op.raw.f3;
+          document.getElementById("opPromedio").value = op.raw.promedio;
+          document.getElementById("opObs").value = op.raw.obs;
+        } else if (op.tipo === "fresado_inserto") {
+          document.getElementById("opPorta").value = op.raw.porta;
+          document.getElementById("opInserto").value = op.raw.inserto;
+          document.getElementById("opFilos").value = op.raw.filos;
+          document.getElementById("opZ").value = op.raw.z;
+          document.getElementById("opDiametro").value = op.raw.diametro;
+          document.getElementById("opVc").value = op.raw.vc;
+          document.getElementById("opAvance").value = op.raw.avance;
+          document.getElementById("opLargo").value = op.raw.largo;
+          document.getElementById("opPasadas").value = op.raw.pasadas;
+          document.getElementById("opAp").value = op.raw.ap;
+          document.getElementById("opAe").value = op.raw.ae;
+          document.getElementById("opPrecioInserto").value =
+            op.raw.precioInserto;
+          document.getElementById("opPrecioPorta").value = op.raw.precioPorta;
+          document.getElementById("opF1").value = op.raw.f1;
+          document.getElementById("opF2").value = op.raw.f2;
+          document.getElementById("opF3").value = op.raw.f3;
+          document.getElementById("opPromedio").value = op.raw.promedio;
+          document.getElementById("opObs").value = op.raw.obs;
+        } else {
+          document.getElementById("opHta").value = op.raw.herramienta;
+          document.getElementById("opVc").value = op.raw.vc;
+          document.getElementById("opAvance").value = op.raw.avance;
+          document.getElementById("opLargo").value = op.raw.largo;
+          document.getElementById("opDiametro").value = op.raw.diametro;
+          document.getElementById("opPrecioHta").value = op.raw.precioHta;
+        }
+
+        document.getElementById("opCodigoG").value = op.raw.codigoG || "";
+        tempPlanoUrl = op.raw.plano || "";
+
+        eliminarOperacion(index);
+        avanzarPaso("cardLista", "cardOperaciones");
+      }
+
+      function eliminarOperacion(index) {
+        operaciones.splice(index, 1);
+        actualizarLista();
+        if (operaciones.length === 0) {
+          document.getElementById("btnFinalizarOp").classList.add("d-none");
+        } else {
+          calcularTotal();
+        }
+      }
+
+      function editarCostoHora() {
+        const actual = document.getElementById("costoHora").value;
+        const nuevo = prompt(
+          "Ingrese el nuevo costo por hora de la máquina (USD):",
+          actual,
+        );
+        if (
+          nuevo !== null &&
+          nuevo.trim() !== "" &&
+          !isNaN(parseFloat(nuevo))
+        ) {
+          document.getElementById("costoHora").value = parseFloat(nuevo);
+          operaciones.forEach((o) => {
+            const costoHMaq = parseFloat(nuevo);
+            o.costoMaqLote = costoHMaq * o.tiempoLoteHs;
+          });
+          calcularTotal();
+        }
+      }
+
+      function editarEficiencia() {
+        const actual = document.getElementById("eficienciaMaquina").value;
+        const nuevo = prompt(
+          "Ingrese el nuevo coeficiente de eficiencia (%):",
+          actual,
+        );
+        if (
+          nuevo !== null &&
+          nuevo.trim() !== "" &&
+          !isNaN(parseFloat(nuevo))
+        ) {
+          const efic = parseFloat(nuevo);
+          if (efic > 0) {
+            document.getElementById("eficienciaMaquina").value = efic;
+            const factorEficiencia = efic / 100;
+            const costoHoraMaq =
+              parseFloat(document.getElementById("costoHora").value) || 0;
+
+            operaciones.forEach((o) => {
+              o.tiempoPiezaSeg = o.tiempoNetoSeg / factorEficiencia;
+              o.tiempoLoteHs = (o.tiempoPiezaSeg * o.lote) / 3600;
+              o.costoMaqLote = costoHoraMaq * o.tiempoLoteHs;
+            });
+            calcularTotal();
+          }
+        }
+      }
+
+      function calcularTotal() {
+        if (operaciones.length === 0) return;
+
+        const lote =
+          parseFloat(document.getElementById("piezasLote").value) || 1;
+        const costoHoraMaq =
+          parseFloat(document.getElementById("costoHora").value) || 0;
+        const eficiencia =
+          document.getElementById("eficienciaMaquina").value || 100;
+        const tiempoCambioPiezaSeg =
+          parseFloat(document.getElementById("tiempoCambioPieza").value) || 0;
+        const tiempoCambioLoteSeg = tiempoCambioPiezaSeg * lote;
+        const tiempoCambioLoteHs = tiempoCambioLoteSeg / 3600;
+
+        let tiempoMecanizadoLoteHs = 0;
+        let costoHtaLoteTotal = 0;
+
+        operaciones.forEach((o) => {
+          tiempoMecanizadoLoteHs += o.tiempoLoteHs;
+          costoHtaLoteTotal += o.costoHtaLote;
+        });
+
+        const tiempoTotalLoteHs = tiempoMecanizadoLoteHs + tiempoCambioLoteHs;
+        const costoMaqLoteTotal = costoHoraMaq * tiempoTotalLoteHs;
+        const costoTotalLote = costoHtaLoteTotal + costoMaqLoteTotal;
+        const costoTotalPieza = costoTotalLote / lote;
+
+        const selectMaq = document.getElementById("selectMaquina");
+        const maquinaSeleccionada =
+          selectMaq.value !== ""
+            ? selectMaq.options[selectMaq.selectedIndex].text
+            : "No especificada";
+
+        document.getElementById("resumenCliente").innerHTML = `
+          <div class="row">
+            <div class="col-6"><p class="mb-1"><strong>Razón Social:</strong> ${document.getElementById("razonSocial").value}</p></div>
+            <div class="col-6"><p class="mb-1"><strong>Pieza:</strong> ${document.getElementById("nombrePieza").value || "S/N"} (ID: ${document.getElementById("numPieza").value || "S/N"})</p></div>
+            <div class="col-6"><p class="mb-1"><strong>Representante/s:</strong> ${document.getElementById("representante").value}</p></div>
+            <div class="col-6"><p class="mb-1"><strong>Lote de Producción:</strong> ${lote} unidades</p></div>
+            <div class="col-12 mt-2 pt-2 border-top">
+                <p class="mb-1"><strong>Máquina Empleada:</strong> ${maquinaSeleccionada}</p>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("aclaracionHoraMaquina").innerHTML = `
+            <div>
+              Valor de hora máquina calculado: USD ${costoHoraMaq.toFixed(2)}
+              <button class="btn btn-sm btn-outline-primary ms-2" onclick="editarCostoHora()" data-html2canvas-ignore="true" title="Editar costo de máquina">
+                  <i class="fa-solid fa-pencil"></i>
+              </button>
+            </div>
+            <div class="mt-1">
+              Coeficiente de eficiencia: ${eficiencia}%
+              <a href="https://www.oee.com/world-class-oee/" target="_blank" title="+ información del Coeficiente de Eficiencia según estándares OEE de la industria" class="ms-1 text-info text-decoration-none">
+                  <i class="fa-solid fa-circle-info"></i>
+              </a>
+              <button class="btn btn-sm btn-outline-primary ms-2" onclick="editarEficiencia()" data-html2canvas-ignore="true" title="Editar coeficiente de eficiencia">
+                  <i class="fa-solid fa-pencil"></i>
+              </button>
+            </div>
+        `;
+        document
+          .getElementById("aclaracionHoraMaquina")
+          .classList.remove("d-none");
+
+        let htmlDetalles =
+          '<h5 class="border-bottom pb-2 mt-5 text-primary text-start">Desglose Técnico y Económico por Operación</h5>';
+        operaciones.forEach((o, index) => {
+          const etiquetaTipo =
+            o.tipo === "fresado_mdi"
+              ? "FRESADO (MDI)"
+              : o.tipo === "fresado_inserto"
+                ? "FRESADO (INSERTO)"
+                : o.tipo.toUpperCase();
+          htmlDetalles += `<div class="mb-3 p-3 border rounded text-start" style="background:#f9f9f9; page-break-inside: avoid;">
+            <h6 class="text-dark border-bottom pb-1 fw-bold">Operación ${index + 1}: ${etiquetaTipo} (${o.subtipo})</h6>`;
+
+          if (o.tipo === "torneado") {
+            htmlDetalles += `
+                <div class="row small">
+                  <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Porta: ${o.raw.porta || "-"} | Inserto: ${o.raw.inserto || "-"} | Filos: ${o.raw.filos || "-"}</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Precio Inserto: USD ${o.raw.precioInserto} | Precio Porta: USD ${o.raw.precioPorta}</div>
+                  <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> F1: ${o.raw.f1 || "-"} | F2: ${o.raw.f2 || "-"} | F3: ${o.raw.f3 || "-"} (Promedio: ${o.raw.promedio}) | Obs: ${o.raw.obs || "-"}</div>
+                </div>`;
+          } else if (o.tipo === "fresado_mdi") {
+            htmlDetalles += `
+                <div class="row small">
+                  <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Fresa MDI: ${o.raw.hta || "-"} | Ø: ${o.raw.diametro}mm | Cortes (Z): ${o.raw.z}</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | Avance F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Costo Fresa: USD ${o.raw.precioHta} | Precio Porta: USD ${o.raw.precioPorta}</div>
+                  <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> Vida Útil Promedio: ${o.raw.promedio} piezas | Obs: ${o.raw.obs || "-"}</div>
+                </div>`;
+          } else if (o.tipo === "fresado_inserto") {
+            htmlDetalles += `
+                <div class="row small">
+                  <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Cuerpo: ${o.raw.porta || "-"} | Inserto: ${o.raw.inserto || "-"} | Ø: ${o.raw.diametro}mm | Insertos (Z): ${o.raw.z} | Filos/Inserto: ${o.raw.filos}</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | Avance F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Precio 1 Inserto: USD ${o.raw.precioInserto} | Precio Cuerpo: USD ${o.raw.precioPorta}</div>
+                  <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> Rendimiento del juego de filos: ${o.raw.promedio} piezas | Obs: ${o.raw.obs || "-"}</div>
+                </div>`;
+          } else {
+            htmlDetalles += `
+                <div class="row small">
+                  <div class="col-12 mt-1"><strong>1. Herramienta:</strong> ${o.raw.herramienta}</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm</div>
+                  <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Costo Hta: USD ${o.raw.precioHta}</div>
+                </div>`;
+          }
+
+          if (o.raw.plano || o.raw.codigoG) {
+            htmlDetalles += `<div class="row small border-top mt-3 pt-2">`;
+            if (o.raw.plano) {
+              htmlDetalles += `<div class="col-12 mt-2 op-plano-preview"><strong>Plano Asociado:</strong><br><img src="${o.raw.plano}" style="max-height: 250px; object-fit: contain;" class="border mt-1"></div>`;
+            }
+            if (o.raw.codigoG) {
+              htmlDetalles += `<div class="col-12 mt-2 op-codigog-preview"><strong>Código G:</strong><pre class="bg-dark text-light p-2 rounded mt-1" style="white-space: pre-wrap;">${o.raw.codigoG}</pre></div>`;
+            }
+            htmlDetalles += `</div>`;
+          }
+          htmlDetalles += `</div>`;
+        });
+        document.getElementById("reporteDetalleOperaciones").innerHTML =
+          htmlDetalles;
+
+        document.getElementById("tablaResultados").innerHTML = operaciones
+          .map((o) => {
+            const etiquetaTipo =
+              o.tipo === "fresado_mdi"
+                ? "FRESADO (MDI)"
+                : o.tipo === "fresado_inserto"
+                  ? "FRESADO (INSERTO)"
+                  : o.tipo.toUpperCase();
+            return `
+          <tr>
+              <td class="text-uppercase">${etiquetaTipo}<br><small class="text-muted fw-bold">${o.subtipo}</small></td>
+              <td>${o.herramienta}</td>
+              <td>${formatearTiempo(o.tiempoPiezaSeg)}</td>
+              <td>${formatearTiempo(o.tiempoLoteHs * 3600)}</td>
+              <td>USD ${o.costoHtaPieza.toFixed(3)}</td>
+          </tr>`;
+          })
+          .join("");
+
+        document.getElementById("resumenEconomico").innerHTML = `
+            <div class="row text-center">
+              <div class="col-md-6 border-end border-success">
+                <h5 class="text-secondary fw-bold">Costos por el Lote Completo (${lote} u)</h5>
+                <p class="mb-1">Tiempo de mecanizado real: <strong>${formatearTiempo(tiempoMecanizadoLoteHs * 3600)}</strong></p>
+                <p class="mb-1 text-danger small">+ Tiempo de cambio de piezas en total: ${formatearTiempo(tiempoCambioLoteSeg)}</p>
+                <p class="mb-1">Costo de herramientas: <strong>USD ${costoHtaLoteTotal.toFixed(2)}</strong></p>
+                <p class="mb-1">Costo de máquina por el lote: <strong>USD ${costoMaqLoteTotal.toFixed(2)}</strong></p>
+                <h4 class="mt-3 text-dark border-top border-success pt-2">Costo total del lote: USD ${costoTotalLote.toFixed(2)}</h4>
+              </div>
+              <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-secondary fw-bold">Costos Unitarios por Pieza</h5>
+                <p class="mb-1">Tiempo de mecanizado real y cambio: <strong>${formatearTiempo((tiempoTotalLoteHs / lote) * 3600)}</strong></p>
+                <p class="mb-1">Costo de herramienta por pieza: <strong>USD ${(costoHtaLoteTotal / lote).toFixed(2)}</strong></p>
+                <p class="mb-1">Costo de máquina por pieza: <strong>USD ${(costoMaqLoteTotal / lote).toFixed(2)}</strong></p>
+                <h2 class="text-success fw-bold mt-2 border-top border-success pt-2">USD ${costoTotalPieza.toFixed(2)}</h2>
+              </div>
+            </div>
+        `;
+        renderVistaReporte();
+      }
+
+      function renderVistaReporte() {
+        const chkPlano = document.getElementById("chkIncluirPlano").checked;
+        const chkCodigoG = document.getElementById("chkIncluirCodigoG").checked;
+
+        document.querySelectorAll(".op-plano-preview").forEach((el) => {
+          el.style.display = chkPlano ? "block" : "none";
+        });
+        document.querySelectorAll(".op-codigog-preview").forEach((el) => {
+          el.style.display = chkCodigoG ? "block" : "none";
+        });
+      }
+
+      function exportarPDF() {
+        const html = document.documentElement;
+        const esOscuro = html.getAttribute("data-bs-theme") === "dark";
+        if (esOscuro) html.setAttribute("data-bs-theme", "light");
+
+        const element = document.getElementById("reportePDF");
+        const nombrePieza =
+          document.getElementById("nombrePieza").value || "Mecanizado";
+        const opt = {
+          margin: [15, 10, 15, 10],
+          filename: `Cotizacion_${nombrePieza}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            scrollY: 0,
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["css", "legacy"] },
+        };
+
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            if (esOscuro) html.setAttribute("data-bs-theme", "dark");
+          });
+      }
+
+      function guardarNuevaMaquina(event) {
+        event.preventDefault();
+        const marca = document.getElementById("maqMarca").value;
+        const modelo = document.getElementById("maqModelo").value;
+        const select = document.getElementById("selectMaquina");
+        const option = document.createElement("option");
+        option.text = `${marca} - ${modelo}`;
+        option.value = "local_temp";
+        select.add(option);
+        select.value = "local_temp";
+        const modalEl = document.getElementById("modalNuevaMaquina");
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+        alert("Máquina agregada localmente para prueba.");
+        document.getElementById("formMaquina").reset();
+      }
+
+      async function ejecutarLogin(event) {}
+      function cerrarSesion() {}
+      function seleccionarMaquina() {}
+      async function guardarEnBaseDeDatos() {
+        alert("Datos listos para enviar a Base de Datos.");
+      }
+    </script>
   </body>
 </html>
