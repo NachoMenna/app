@@ -47,6 +47,10 @@
           opacity: 1;
         }
       }
+      .tooltip-icon {
+        cursor: pointer;
+        color: #0d6efd;
+      }
     </style>
   </head>
   <body class="bg-body">
@@ -196,7 +200,7 @@
             </div>
           </div>
           <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-6">
               <label class="form-label">Seleccionar Máquina Guardada</label>
               <select
                 id="selectMaquina"
@@ -207,7 +211,7 @@
                 <option value="test">Torno / Centro CNC Genérico</option>
               </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <label class="form-label text-danger fw-bold"
                 >Costo por hora de la Máquina (USD)</label
               >
@@ -217,20 +221,6 @@
                 class="form-control border-danger"
                 value="25"
                 step="0.5"
-              />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label text-primary fw-bold"
-                >Eficiencia de Máquina (%)</label
-              >
-              <input
-                type="number"
-                id="eficienciaMaquina"
-                class="form-control border-primary"
-                value="75"
-                step="1"
-                max="100"
-                min="1"
               />
             </div>
           </div>
@@ -447,7 +437,7 @@
               <!-- SECCIÓN: Detalles de las Operaciones en PDF -->
               <div id="reporteDetalleOperaciones" class="mb-4 text-dark"></div>
 
-              <!-- AQUÍ VAN LOS VALORES EDITABLES DE MÁQUINA Y EFICIENCIA -->
+              <!-- AQUÍ VA EL VALOR DE LA HORA MÁQUINA -->
               <div
                 id="aclaracionHoraMaquina"
                 class="text-end text-primary mb-2 fw-bold d-none"
@@ -486,7 +476,7 @@
                       </li>
                       <li>
                         <strong>Tiempo Real Pieza (Seg):</strong> Tiempo Neto /
-                        (Eficiencia / 100)
+                        Factor de Tiempo de la Operación
                       </li>
                       <li>
                         <strong>Tiempo Mecanizado Lote (Hs):</strong> (Tiempo
@@ -711,6 +701,14 @@
         let html = "";
         tempPlanoUrl = "";
 
+        // Definir factor por defecto según la operación
+        let defaultFactor = 0.85;
+        if (tipo === "torneado") defaultFactor = 0.85;
+        else if (tipo === "fresado_inserto") defaultFactor = 0.8;
+        else if (tipo === "fresado_mdi") defaultFactor = 0.75;
+        else if (tipo === "perforado") defaultFactor = 0.65;
+        else if (tipo === "roscado") defaultFactor = 0.6;
+
         let subtiposHTML = "";
         if (tipo === "torneado") {
           subtiposHTML = `<option value="Cilindrado">Cilindrado</option><option value="Frenteado">Frenteado</option><option value="Ranurado">Ranurado</option><option value="Tronzado">Tronzado</option><option value="Mandrinado">Mandrinado</option><option value="Perfilado">Perfilado</option><option value="Otro">Otro</option>`;
@@ -721,6 +719,9 @@
         } else if (tipo === "roscado") {
           subtiposHTML = `<option value="Con inserto">Con inserto</option><option value="Con macho">Con macho</option><option value="Con fresa">Con fresa</option><option value="Con terraja">Con terraja</option><option value="Otro">Otro</option>`;
         }
+
+        // Variable global para el tooltip en todos los HTML forms de abajo
+        const tooltipInfo = `<a href="https://www.oee.com/world-class-oee/" target="_blank" title="+ información del Coeficiente de Eficiencia según estándares OEE de la industria" class="tooltip-icon ms-1 text-decoration-none"><i class="fa-solid fa-circle-info"></i></a>`;
 
         if (tipo === "torneado") {
           html = `
@@ -746,6 +747,7 @@
                 <div class="col-md-4"><label class="form-label">Largo del torneado (mm)</label><input type="number" id="opLargo" class="form-control" value="100"></div>
                 <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
                 <div class="col-md-4"><label class="form-label">Prof. de Corte Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
+                <div class="col-md-4"><label class="form-label text-primary fw-bold">Factor Tiempo ${tooltipInfo}</label><input type="number" id="opFactor" class="form-control border-primary" step="0.05" min="0.1" max="1" value="${defaultFactor}"></div>
               </div>
               <div class="d-flex justify-content-between mt-3">
                 <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
@@ -804,6 +806,7 @@
                 <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
                 <div class="col-md-4"><label class="form-label">Profundidad Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
                 <div class="col-md-4"><label class="form-label">Corte Radial Ae (mm)</label><input type="number" id="opAe" class="form-control" step="0.1"></div>
+                <div class="col-md-4"><label class="form-label text-primary fw-bold">Factor Tiempo ${tooltipInfo}</label><input type="number" id="opFactor" class="form-control border-primary" step="0.05" min="0.1" max="1" value="${defaultFactor}"></div>
               </div>
               <div class="d-flex justify-content-between mt-3">
                 <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
@@ -865,6 +868,7 @@
                 <div class="col-md-4"><label class="form-label">Cantidad de Pasadas</label><input type="number" id="opPasadas" class="form-control" value="1"></div>
                 <div class="col-md-4"><label class="form-label">Profundidad Ap (mm)</label><input type="number" id="opAp" class="form-control" step="0.1"></div>
                 <div class="col-md-4"><label class="form-label">Corte Radial Ae (mm)</label><input type="number" id="opAe" class="form-control" step="0.1"></div>
+                <div class="col-md-4"><label class="form-label text-primary fw-bold">Factor Tiempo ${tooltipInfo}</label><input type="number" id="opFactor" class="form-control border-primary" step="0.05" min="0.1" max="1" value="${defaultFactor}"></div>
               </div>
               <div class="d-flex justify-content-between mt-3">
                 <button type="button" class="btn btn-outline-secondary" onclick="avanzarSubPaso('subpaso-2', 'subpaso-1')"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
@@ -913,6 +917,7 @@
               <div class="col-md-4"><label class="form-label">Largo (mm)</label><input type="number" id="opLargo" class="form-control" value="50"></div>
               <div class="col-md-4"><label class="form-label">Diámetro (mm)</label><input type="number" id="opDiametro" class="form-control" value="10"></div>
               <div class="col-md-4"><label class="form-label">Costo Hta (USD)</label><input type="number" id="opPrecioHta" class="form-control" value="15"></div>
+              <div class="col-md-4"><label class="form-label text-primary fw-bold">Factor Tiempo ${tooltipInfo}</label><input type="number" id="opFactor" class="form-control border-primary" step="0.05" min="0.1" max="1" value="${defaultFactor}"></div>
               
               <div class="col-md-6"><label class="form-label">Adjuntar Plano (Opcional)</label><input type="file" id="opPlano" class="form-control" accept=".png, .jpg, .jpeg, .pdf" onchange="cargarImagenPlanoOp(event)"></div>
               <div class="col-md-6"><label class="form-label">Código G de Operación</label><textarea id="opCodigoG" class="form-control" rows="2" placeholder="Ej. G21 G90..."></textarea></div>
@@ -926,15 +931,14 @@
       function agregarOperacion() {
         const tipo = document.getElementById("tipoOperacion").value;
         const subtipo = document.getElementById("opSubtipo").value;
+        const factorTiempo =
+          parseFloat(document.getElementById("opFactor").value) || 0.85;
         const lote =
           parseFloat(document.getElementById("piezasLote").value) || 1;
         const costoHoraMaq =
           parseFloat(document.getElementById("costoHora").value) || 0;
-        const eficiencia =
-          parseFloat(document.getElementById("eficienciaMaquina").value) || 100;
-        const factorEficiencia = eficiencia / 100;
 
-        let op = { tipo, subtipo, lote, raw: {} };
+        let op = { tipo, subtipo, factorTiempo, lote, raw: {} };
 
         if (tipo === "torneado") {
           op.raw = {
@@ -972,7 +976,7 @@
           const avanceTotal = rpm * avance;
           const tiempoNetoSeg =
             avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
-          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorTiempo;
           const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
 
           const filosConsumidosLote = lote / promedioRendimiento;
@@ -1028,7 +1032,7 @@
           const avanceTotal = rpm * avanceFz * z;
           const tiempoNetoSeg =
             avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
-          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorTiempo;
           const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
 
           const consumoFresaLote = lote / promedioRendimiento;
@@ -1087,7 +1091,7 @@
           const avanceTotal = rpm * avanceFz * z;
           const tiempoNetoSeg =
             avanceTotal > 0 ? ((largo * pasadas) / avanceTotal) * 60 : 0;
-          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorTiempo;
           const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
 
           const consumoJuegosLote = lote / promedioRendimiento;
@@ -1128,7 +1132,7 @@
           const largo = parseFloat(op.raw.largo) || 10;
           const tiempoNetoSeg =
             avanceTotal > 0 ? (largo / avanceTotal) * 60 : 0;
-          const tiempoPiezaSeg = tiempoNetoSeg / factorEficiencia;
+          const tiempoPiezaSeg = tiempoNetoSeg / factorTiempo;
           const tiempoLoteHs = (tiempoPiezaSeg * lote) / 3600;
           const costoHtaPieza = parseFloat(op.raw.precioHta) / 100 || 0;
 
@@ -1184,6 +1188,7 @@
         renderFormOperacion();
 
         document.getElementById("opSubtipo").value = op.raw.subtipo || "";
+        document.getElementById("opFactor").value = op.factorTiempo;
 
         if (op.tipo === "torneado") {
           document.getElementById("opPorta").value = op.raw.porta;
@@ -1286,34 +1291,6 @@
         }
       }
 
-      function editarEficiencia() {
-        const actual = document.getElementById("eficienciaMaquina").value;
-        const nuevo = prompt(
-          "Ingrese el nuevo coeficiente de eficiencia (%):",
-          actual,
-        );
-        if (
-          nuevo !== null &&
-          nuevo.trim() !== "" &&
-          !isNaN(parseFloat(nuevo))
-        ) {
-          const efic = parseFloat(nuevo);
-          if (efic > 0) {
-            document.getElementById("eficienciaMaquina").value = efic;
-            const factorEficiencia = efic / 100;
-            const costoHoraMaq =
-              parseFloat(document.getElementById("costoHora").value) || 0;
-
-            operaciones.forEach((o) => {
-              o.tiempoPiezaSeg = o.tiempoNetoSeg / factorEficiencia;
-              o.tiempoLoteHs = (o.tiempoPiezaSeg * o.lote) / 3600;
-              o.costoMaqLote = costoHoraMaq * o.tiempoLoteHs;
-            });
-            calcularTotal();
-          }
-        }
-      }
-
       function calcularTotal() {
         if (operaciones.length === 0) return;
 
@@ -1321,8 +1298,6 @@
           parseFloat(document.getElementById("piezasLote").value) || 1;
         const costoHoraMaq =
           parseFloat(document.getElementById("costoHora").value) || 0;
-        const eficiencia =
-          document.getElementById("eficienciaMaquina").value || 100;
         const tiempoCambioPiezaSeg =
           parseFloat(document.getElementById("tiempoCambioPieza").value) || 0;
         const tiempoCambioLoteSeg = tiempoCambioPiezaSeg * lote;
@@ -1366,15 +1341,6 @@
                   <i class="fa-solid fa-pencil"></i>
               </button>
             </div>
-            <div class="mt-1">
-              Coeficiente de eficiencia: ${eficiencia}%
-              <a href="https://www.oee.com/world-class-oee/" target="_blank" title="+ información del Coeficiente de Eficiencia según estándares OEE de la industria" class="ms-1 text-info text-decoration-none">
-                  <i class="fa-solid fa-circle-info"></i>
-              </a>
-              <button class="btn btn-sm btn-outline-primary ms-2" onclick="editarEficiencia()" data-html2canvas-ignore="true" title="Editar coeficiente de eficiencia">
-                  <i class="fa-solid fa-pencil"></i>
-              </button>
-            </div>
         `;
         document
           .getElementById("aclaracionHoraMaquina")
@@ -1396,7 +1362,7 @@
             htmlDetalles += `
                 <div class="row small">
                   <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Porta: ${o.raw.porta || "-"} | Inserto: ${o.raw.inserto || "-"} | Filos: ${o.raw.filos || "-"}</div>
-                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Factor de Tiempo: ${o.factorTiempo}</div>
                   <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Precio Inserto: USD ${o.raw.precioInserto} | Precio Porta: USD ${o.raw.precioPorta}</div>
                   <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> F1: ${o.raw.f1 || "-"} | F2: ${o.raw.f2 || "-"} | F3: ${o.raw.f3 || "-"} (Promedio: ${o.raw.promedio}) | Obs: ${o.raw.obs || "-"}</div>
                 </div>`;
@@ -1404,7 +1370,7 @@
             htmlDetalles += `
                 <div class="row small">
                   <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Fresa MDI: ${o.raw.hta || "-"} | Ø: ${o.raw.diametro}mm | Cortes (Z): ${o.raw.z}</div>
-                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | Avance F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm | Factor de Tiempo: ${o.factorTiempo}</div>
                   <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Costo Fresa: USD ${o.raw.precioHta} | Precio Porta: USD ${o.raw.precioPorta}</div>
                   <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> Vida Útil Promedio: ${o.raw.promedio} piezas | Obs: ${o.raw.obs || "-"}</div>
                 </div>`;
@@ -1412,7 +1378,7 @@
             htmlDetalles += `
                 <div class="row small">
                   <div class="col-12 mt-1"><strong>1. Herramienta:</strong> Cuerpo: ${o.raw.porta || "-"} | Inserto: ${o.raw.inserto || "-"} | Ø: ${o.raw.diametro}mm | Insertos (Z): ${o.raw.z} | Filos/Inserto: ${o.raw.filos}</div>
-                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | Avance F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Vc: ${o.raw.vc}m/min | RPM: ${o.rpm} | fz: ${o.raw.avance}mm/diente | F(mm/min): ${o.avanceTotal} | L: ${o.raw.largo}mm | Pasadas: ${o.raw.pasadas} | Ap: ${o.raw.ap || "-"}mm | Ae: ${o.raw.ae || "-"}mm | Factor de Tiempo: ${o.factorTiempo}</div>
                   <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Precio 1 Inserto: USD ${o.raw.precioInserto} | Precio Cuerpo: USD ${o.raw.precioPorta}</div>
                   <div class="col-12 mt-1"><strong>4. Rendimiento:</strong> Rendimiento del juego de filos: ${o.raw.promedio} piezas | Obs: ${o.raw.obs || "-"}</div>
                 </div>`;
@@ -1420,7 +1386,7 @@
             htmlDetalles += `
                 <div class="row small">
                   <div class="col-12 mt-1"><strong>1. Herramienta:</strong> ${o.raw.herramienta}</div>
-                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm</div>
+                  <div class="col-12 mt-1"><strong>2. Condiciones:</strong> Ø: ${o.raw.diametro}mm | Vc: ${o.raw.vc}m/min | f: ${o.raw.avance}mm/rev | L: ${o.raw.largo}mm | Factor de Tiempo: ${o.factorTiempo}</div>
                   <div class="col-12 mt-1"><strong>3. Info Económica:</strong> Costo Hta: USD ${o.raw.precioHta}</div>
                 </div>`;
           }
